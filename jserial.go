@@ -1,32 +1,44 @@
 package main
 
 import (
-	"fmt"
-	"encoding/json"
-	"io/ioutil"
-	"log"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "log"
 )
+
+type nestedArray [][][]string
 
 func main() {
 
-	jsonFile, err := ioutil.ReadFile("cascade-down.json")
+    var jsonData nestedArray
 
-	if err != nil {
-		log.Fatal(err)
-	}
+    jsonFile, err := ioutil.ReadFile("./json/cascade-down.json")
 
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    err = json.Unmarshal(jsonFile, &jsonData)
+
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    for i := range jsonData {
+    	for j := range jsonData[i] {
+    		for k := range jsonData[i][j] {
+        		fmt.Println("Output to Serial", jsonData[i][j][k])
+        	}
+    	}
+    }
 }
 
-func ListFiles() {
+func frame() []uint8 {
 
-	files, err := ioutil.ReadDir("./json")
+	strips := 8
+	leds := 30
+	totalLeds := strips * leds
 
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, file := range files {
-		fmt.Println(file.Name())
-	}
-
+	return make([]uint8, totalLeds);
 }
