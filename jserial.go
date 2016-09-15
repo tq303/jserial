@@ -5,9 +5,10 @@ import (
     "fmt"
     "io/ioutil"
     "log"
+    "strconv"
 )
 
-type nestedArray [][][]string
+type framesArray [][][]string
 
 func main() {
 
@@ -20,7 +21,7 @@ func main() {
     for i := range jsonData {
     	for j := range jsonData[i] {
     		for k := range jsonData[i][j] {
-        		fmt.Println("Output to Serial", jsonData[i][j][k])
+        		fmt.Println("Output to Serial", strconv.ParseInt(jsonData[i][j][k], 10))
         	}
     	}
     }
@@ -28,7 +29,7 @@ func main() {
 
 func readJsonFile(fileName string) ([][][]string, error) {
 	
-	var jsonData nestedArray
+	var jsonData framesArray
 
     jsonFile, err := ioutil.ReadFile(fileName)
 
