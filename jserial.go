@@ -11,16 +11,8 @@ type nestedArray [][][]string
 
 func main() {
 
-    var jsonData nestedArray
-
-    jsonFile, err := ioutil.ReadFile("./json/cascade-down.json")
-
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    err = json.Unmarshal(jsonFile, &jsonData)
-
+	jsonData, err := readJsonFile("./json/cascade-down.json");
+    
     if err != nil {
         log.Fatal(err)
     }
@@ -34,11 +26,21 @@ func main() {
     }
 }
 
-func frame() []uint8 {
+func readJsonFile(fileName string) ([][][]string, error) {
+	
+	var jsonData nestedArray
 
-	strips := 8
-	leds := 30
-	totalLeds := strips * leds
+    jsonFile, err := ioutil.ReadFile(fileName)
 
-	return make([]uint8, totalLeds);
+    if err != nil {
+        return nil, err
+    }
+
+    err = json.Unmarshal(jsonFile, &jsonData)
+
+    if err != nil {
+        return nil, err
+    }
+
+    return jsonData, nil
 }
