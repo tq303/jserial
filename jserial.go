@@ -26,7 +26,7 @@ func main() {
     }
 }
 
-func readJsonFile(fileName string) ([][][]string, error) {
+func readJsonFile(fileName string) ([][][]string, error err = nil) {
 	
 	var jsonData nestedArray
 
