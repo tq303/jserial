@@ -11,7 +11,7 @@ import (
 
 type framesArray [][][]string
 
-type Frames struct {
+type Animation struct {
   Frames framesArray
 }
 
@@ -29,21 +29,7 @@ func convert() {
     log.Fatal(err)
   }
 
-  for i := range jsonData {
-    for j := range jsonData[i] {
-      for k := range jsonData[i][j] {
-
-        colour, err := hex.DecodeString(jsonData[i][j][k])
-
-                // reset to black if there is an error
-        if err != nil {
-          colour = make([]byte, 3)
-        }
-
-        fmt.Println("Output to Serial", colour[0], colour[1], colour[2])
-      }
-    }
-  }
+  loopOut(jsonData)
 }
 
 func readJsonFile(fileName string) ([][][]string, error) {
@@ -69,19 +55,37 @@ func initEndpoints() {
 
   http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
 
-    var body Frames
+    var body Animation
 
     err := json.NewDecoder(r.Body).Decode(&body)
 
     if err != nil {
-        log.Println(err)
+      log.Println(err)
     }
 
-    fmt.Println(body.Frames)
+    loopOut(body.Frames)
 
     fmt.Fprintf(w, "handler")
 
   })
 
   http.ListenAndServe(":8080", nil)
+}
+
+func loopOut(jsonData framesArray) {
+  for i := range jsonData {
+    for j := range jsonData[i] {
+      for k := range jsonData[i][j] {
+
+        colour, err := hex.DecodeString(jsonData[i][j][k])
+
+        // reset to black if there is an error
+        if err != nil {
+          colour = make([]byte, 3)
+        }
+
+        fmt.Println("Output to Serial", colour[0], colour[1], colour[2])
+      }
+    }
+  }
 }
