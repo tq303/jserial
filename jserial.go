@@ -1,47 +1,87 @@
 package main
 
 import (
-    "encoding/json"
-    "fmt"
-    "io/ioutil"
-    "log"
-    "strconv"
+  "encoding/json"
+  "fmt"
+  "io/ioutil"
+  "log"
+  "encoding/hex"
+  "net/http"
 )
 
 type framesArray [][][]string
 
+type Frames struct {
+  Frames framesArray
+}
+
 func main() {
 
-	jsonData, err := readJsonFile("./json/cascade-down.json");
-    
-    if err != nil {
-        log.Fatal(err)
-    }
+    initEndpoints()
 
-    for i := range jsonData {
-    	for j := range jsonData[i] {
-    		for k := range jsonData[i][j] {
-        		fmt.Println("Output to Serial", strconv.ParseInt(jsonData[i][j][k], 10))
-        	}
-    	}
+}
+
+func convert() {
+
+  jsonData, err := readJsonFile("./json/cascade-down.json")
+
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  for i := range jsonData {
+    for j := range jsonData[i] {
+      for k := range jsonData[i][j] {
+
+        colour, err := hex.DecodeString(jsonData[i][j][k])
+
+                // reset to black if there is an error
+        if err != nil {
+          colour = make([]byte, 3)
+        }
+
+        fmt.Println("Output to Serial", colour[0], colour[1], colour[2])
+      }
     }
+  }
 }
 
 func readJsonFile(fileName string) ([][][]string, error) {
-	
-	var jsonData framesArray
 
-    jsonFile, err := ioutil.ReadFile(fileName)
+  var jsonData framesArray
+
+  jsonFile, err := ioutil.ReadFile(fileName)
+
+  if err != nil {
+    return nil, err
+  }
+
+  err = json.Unmarshal(jsonFile, &jsonData)
+
+  if err != nil {
+    return nil, err
+  }
+
+  return jsonData, nil
+}
+
+func initEndpoints() {
+
+  http.HandleFunc("/", func (w http.ResponseWriter, r *http.Request) {
+
+    var body Frames
+
+    err := json.NewDecoder(r.Body).Decode(&body)
 
     if err != nil {
-        return nil, err
+        log.Println(err)
     }
 
-    err = json.Unmarshal(jsonFile, &jsonData)
+    fmt.Println(body.Frames)
 
-    if err != nil {
-        return nil, err
-    }
+    fmt.Fprintf(w, "handler")
 
-    return jsonData, nil
+  })
+
+  http.ListenAndServe(":8080", nil)
 }
